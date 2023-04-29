@@ -61,11 +61,11 @@ class Game:
         self.cellObj = self.getCell(self.snakeHead)
         self.cell = self.cells[self.cellObj[0]][self.cells[self.cellObj[1]]]
         '''
-        self.cellObj = self.board.getCell(self.playerNewPosition)
+        self.cellObj = self.board.getCell(playerNewPosition)
         self.cell = self.board.cells[self.cellObj[0]][self.cellObj[1]]
         # self.cell = self.board.getCell(playerNewPosition)
         
-        if  self.cell.jump != None and self.cell.jump.start == playerNewPosition:
+        if self.cell != None and self.cell.jump != None and self.cell.jump.start == playerNewPosition:
             if self.cell.jump.start <= self.cell.jump.end:
                 print("jump done by : ladder")
             else:
