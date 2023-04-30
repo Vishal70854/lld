@@ -1,5 +1,6 @@
 from Jump import Jump
 
 class Cell:
-    def __init__(self) -> None:
-        self.jump = None
+    # jump = None
+    def __init__(self, jump = Jump()) -> None:
+        self.jump = jump

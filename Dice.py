@@ -1,7 +1,7 @@
 import random
 
 class Dice:
-    def __init__(self, diceCount) -> None:
+    def __init__(self, diceCount : int) -> None:
         self.diceCount = diceCount
         self.mini = 1
         self.maxi = 6
