@@ -1,16 +1,16 @@
 from heapq import heapify, heappush, heappop
 from Direction import Direction
-
+from ElevatorCar import ElevatorCar
 
 class ElevatorController:
 
-  def __init__(self, elevatorCar):
+  def __init__(self, elevatorCar : ElevatorCar):
     self.elevatorCar = elevatorCar
     self.minHeap = heapify([])
     self.maxHeap = heapify([]) 
 
   # internal request method
-  def submitInternalRequest(self, currFloorNo, destFloorNo, elevatorCar):
+  def submitInternalRequest(self, currFloorNo : int, destFloorNo : int, elevatorCar: ElevatorCar):
     if elevatorCar.elevatorDirection.UP.name:
       heappush(self.minHeap, currFloorNo)
     else:  # push in max heap

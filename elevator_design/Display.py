@@ -5,7 +5,7 @@ class Display:
 
   def __init__(self, currFloorNo: int):
     self.currFloorNo = currFloorNo
-    self.direction = Direction()
+    self.direction = Direction.UP.name
 
   def setDisplay(self, currFloorNo: int, direction: Direction):
     self.currFloorNo = currFloorNo

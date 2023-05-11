@@ -9,5 +9,5 @@ class Building:
   def removeFloors(self, floor):
     self.floorlist.remove(floor)
 
-  def showFloors(self):
+  def getAllFloors(self):
     return self.floorlist
