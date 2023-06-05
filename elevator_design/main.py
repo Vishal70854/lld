@@ -1,7 +1,6 @@
-from Floor import Floor
-from Building import Building
-from ElevatorCreator import ElevatorCreator
-
+from floor import Floor
+from building import Building
+# from getElevatorList import obj1
 
 class Main:
 
@@ -21,12 +20,17 @@ class Main:
     self.floorList.append(self.floor5)
 
     self.building = Building(self.floorList)
+    print('floor', self.floorList)
+    
+    print('building', self.building)
 
-  def createElevators(self):
-    self.createElevator = ElevatorCreator()
-    self.elevatorControllerList = self.createElevator.getAllElevators()
-    print(self.elevatorControllerList)
+  # def createElevators(self):
+  #   self.createElevator = obj1
+  #   print('obj', obj1)
+  #   self.elevatorControllerList = obj1.getAllElevators()
+  #   print('elevatorList',self.elevatorControllerList)
 
 
 obj = Main()
-obj.createElevators()
+# obj.createElevators()
+

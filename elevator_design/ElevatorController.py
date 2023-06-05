@@ -1,6 +1,6 @@
 from heapq import heapify, heappush, heappop
-from Direction import Direction
-from ElevatorCar import ElevatorCar
+from direction import Direction
+from elevatorCar import ElevatorCar
 
 class ElevatorController:
 

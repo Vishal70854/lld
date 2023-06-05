@@ -1,12 +1,13 @@
-from ElevatorCar import ElevatorCar
-from ElevatorController import ElevatorController
+from elevatorCar import ElevatorCar
+from elevatorController import ElevatorController
 
 
 class ElevatorCreator:
 
   def __init__(self):
     self.elevatorControllerList = []  # list of Elevators
-
+  
+  def createElevator(self):
     # create an elevatorCar object
     self.elevatorcreator1 = ElevatorCar()
     self.elevatorcreator1.id = 1
@@ -20,6 +21,7 @@ class ElevatorCreator:
     # add list of elevatorController in elevatorControllerList
     self.elevatorControllerList.append(self.controller1)
     self.elevatorControllerList.append(self.controller2)
+
 
   def getAllElevators(self):
     return self.elevatorControllerList

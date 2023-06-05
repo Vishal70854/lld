@@ -1,7 +1,7 @@
-from InternalButton import InternalButton
-from Display import Display
-from Status import Status
-from Direction import Direction
+from internalButton import InternalButton
+from display import Display
+from status import Status
+from direction import Direction
 
 
 class ElevatorCar:
