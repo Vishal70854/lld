@@ -1,5 +1,6 @@
 from heapq import heapify, heappush, heappop
 import direction
+import elevatorCar
 
 
 class ElevatorController:
@@ -55,3 +56,9 @@ class ElevatorController:
       # no request in elevator
       if not self.minHeap and not self.maxHeap:
         self.flag = False
+
+
+#  testing
+
+# ec = ElevatorController(elevatorCar.ElevatorCar())
+# print(ec)

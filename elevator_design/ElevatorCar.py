@@ -10,7 +10,7 @@ class ElevatorCar:
     self.currFloorNo = 0
     self.elevatorDirection = direction.Direction.UP.name
     self.elevatorState = status.Status.IDLE.name
-    self.display = display.Display()
+    self.display = display.Display(1) # 1 is given for testing
     self.intBtn = internalButton.InternalButton()
 
   def showDisplay(self):
@@ -43,3 +43,9 @@ class ElevatorCar:
         if (i == destFloorNo):
           return True
     return False
+
+
+
+# -------------------------------------------- testing -------------------------------------
+ec = ElevatorCar()
+print(ec)

@@ -5,8 +5,7 @@ class ElevatorCreator:
 
   def __init__(self):
     self.elevatorControllerList = []  # list of Elevators
-  
-  def createElevator(self):
+
     # create an elevatorCar object
     self.elevatorcreator1 = elevatorCar.ElevatorCar()
     self.elevatorcreator1.id = 1
