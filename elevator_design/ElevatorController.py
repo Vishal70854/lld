@@ -1,17 +1,17 @@
 from heapq import heapify, heappush, heappop
-from direction import Direction
-from elevatorCar import ElevatorCar
+import direction
+
 
 class ElevatorController:
 
-  def __init__(self, elevatorCar : ElevatorCar):
-    self.elevatorCar = elevatorCar
+  def __init__(self, elevatorcar):
+    self.elevatorcar = elevatorcar
     self.minHeap = heapify([])
     self.maxHeap = heapify([]) 
 
   # internal request method
-  def submitInternalRequest(self, currFloorNo : int, destFloorNo : int, elevatorCar: ElevatorCar):
-    if elevatorCar.elevatorDirection.UP.name:
+  def submitInternalRequest(self, currFloorNo : int, destFloorNo : int, elevatorcar):
+    if elevatorcar.elevatorDirection.UP.name:
       heappush(self.minHeap, currFloorNo)
     else:  # push in max heap
       heappush(self.maxHeap, -1 * currFloorNo)
@@ -26,7 +26,7 @@ class ElevatorController:
   #     heappush(self.maxHeap, -1 * currFloorNo)
 
   def controlElevator(self):
-    self.currentFloor = self.elevatorCar.currFloorNo
+    self.currentFloor = self.elevatorcar.currFloorNo
     self.flag = True
     
     while self.flag:
@@ -37,7 +37,7 @@ class ElevatorController:
           print(f"Going Up! We have reached {self.floorValFromHeap} floor")
 
         elif self.currentFloor < self.floorValFromHeap:
-          self.elevatorCar.move(Direction.UP, self.floorValFromHeap)
+          self.elevatorcar.move(direction.Direction.UP, self.floorValFromHeap)
         else:
           heappush(self.minHeap, self.floorValFromHeap)
 
@@ -48,7 +48,7 @@ class ElevatorController:
           print(f"Going Down! We have reached {self.floorValFromHeap} floor")
 
         elif self.currentFloor > self.floorValFromHeap:
-          self.elevatorCar.move(Direction.UP, self.floorValFromHeap)
+          self.elevatorCar.move(direction.Direction.UP, self.floorValFromHeap)
         else:
           heappush(self.maxHeap, -1 * self.floorValFromHeap)
 

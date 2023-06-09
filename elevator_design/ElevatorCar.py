@@ -1,7 +1,6 @@
-from internalButton import InternalButton
-from display import Display
-from status import Status
-from direction import Direction
+# from internalButton import InternalButton
+import internalButton
+import display, status, direction
 
 
 class ElevatorCar:
@@ -9,10 +8,10 @@ class ElevatorCar:
   def __init__(self):
     self.id = 0
     self.currFloorNo = 0
-    self.elevatorDirection = Direction.UP.name
-    self.elevatorState = Status.IDLE.name
-    self.display = Display()
-    self.intBtn = InternalButton()
+    self.elevatorDirection = direction.Direction.UP.name
+    self.elevatorState = status.Status.IDLE.name
+    self.display = display.Display()
+    self.intBtn = internalButton.InternalButton()
 
   def showDisplay(self):
     self.display.showDisplay()
@@ -23,10 +22,10 @@ class ElevatorCar:
   def pressButton(self, destFloorNo: int):
     self.intBtn.pressButton(destFloorNo, self)
 
-  def move(self, direction: Direction, destFloorNo: int):
+  def move(self, direction: direction.Direction, destFloorNo: int):
     self.startFloor = self.currFloorNo
 
-    if direction == Direction.UP.name:  # move up
+    if direction == direction.Direction.UP.name:  # move up
       for i in range(self.startFloor, destFloorNo + 1):
         self.currFloorNo = self.startFloor  # should be i
         self.setDisplay()

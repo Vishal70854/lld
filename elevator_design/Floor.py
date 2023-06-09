@@ -1,5 +1,5 @@
 # from ExternalButtonDispatcher import ExternalButtonDispatcher
-from direction import Direction
+import direction 
 
 
 class Floor:
@@ -8,9 +8,9 @@ class Floor:
     self.floorNo = floorNo
     # self.extBtnDsp = ExternalButtonDispatcher()  # object
 
-  def pressButton(self, direction: Direction):
-    self.extBtnDsp.submitExternalRequest(self.floorNo, direction)
+  # def pressButton(self, direction: direction.Direction):
+  #   self.extBtnDsp.submitExternalRequest(self.floorNo, direction)
 
 
 f = Floor(1)
-print(f)
+# print(f)
