@@ -59,6 +59,6 @@ class ElevatorController:
 
 
 #  testing
-
-# ec = ElevatorController(elevatorCar.ElevatorCar())
-# print(ec)
+# getting partially initialized module error
+ec = ElevatorController(elevatorCar.ElevatorCar())
+print(ec)
