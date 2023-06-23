@@ -113,6 +113,8 @@ classDiagram
         - Shows List<Shows> shows;
     }
     Halls --* Seat : has a
+    Halls --o Shows : has a
+    Halls --* Features : has a
 
     class Seat{
         - String seatno;
