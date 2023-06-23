@@ -1,6 +1,6 @@
-from playingPieceType import  PlayingPieceType
+from pieceType import  PieceType
 class PlayingPiece:
-    def __init__(self, piecetype):
-        self.piecetype = piecetype
-    
+    def __init__(self, pieceType : PieceType):
+        self.pieceType = pieceType
+
     

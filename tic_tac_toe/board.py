@@ -1,31 +1,27 @@
+from pieceType import PieceType
 from playingPiece import PlayingPiece
+from typing import List
 
 class Board:
-    def __init__(self, size):
+    def __init__(self, size: int):
         self.size = size
-        self.board = [[None for _ in range(size)] for _ in range(size)]
-        
-    def addPiece(self, row : int, col : int, playingpiece : PlayingPiece) -> bool:
-        if self.board[row][col] != None:
-            return False
-        self.board[row][col] = playingpiece
-        return True
-    
-    def getFreeCells(self):
-        freecells = []
-        for i in range(self.size):
-            for j in range(self.size):
-                if self.board[i][j] == None:
-                    freecells.append([i,j])
-        return freecells
+        self.board = [[' ' for _ in range(size)] for _ in range(size)]
 
-    def printBoard(self):
+    def print_board(self) -> None:
+        for row in self.board:
+            print('|'.join(row))
+
+    def get_free_cells(self) -> List[tuple]:
+        free_cells = []
         for i in range(self.size):
             for j in range(self.size):
-                if self.board[i][j] != None:
-                    print("check", self.board[i][j])
-                    print(self.board[i][j].piecetype.name)
-                else:
-                    print("    ", end = "")
-                print(" | ",end = "")
-            print("\n")
+                if self.board[i][j] == ' ':
+                    free_cells.append((i, j))
+        return free_cells
+
+    def add_piece(self, row: int, col: int, piece: PieceType) -> bool:
+        if self.board[row][col] == ' ':
+            self.board[row][col] = piece.name
+            return True
+        else:
+            return False

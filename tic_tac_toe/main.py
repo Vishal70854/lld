@@ -1,6 +1,6 @@
-from tictactoe import TicTacToe
+from tictactoe import TicTacToeGame
 
-game = TicTacToe()
-game.initializeGame()
+game = TicTacToeGame()
+game.initialize_game()
 
-print(f"Winner of Game is {game.startGame()}")
+print(f"Winner of Game is {game.start_game()}")

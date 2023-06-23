@@ -1,20 +1,5 @@
-from playingPiece import PlayingPiece
-
+from pieceType import PieceType
 class Player:
-    def __init__(self, name, playingpiece : PlayingPiece):
+    def __init__(self, name: str, playing_piece: PieceType):
         self.name = name
-        self.playingpiece = playingpiece
-    
-    def getName(self):
-        return self.name
-    
-    def setName(self, name):
-        self.name = name
-        
-    def getPlayingPiece(self):
-        return self.playingpiece
-
-    def setPlayingPiece(self, playingpiece):
-        self.playingpiece = playingpiece
-        
-        
+        self.playing_piece = playing_piece

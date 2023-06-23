@@ -1,7 +1,6 @@
-from playingPieceType import PlayingPieceType
-from playingPiece import PlayingPiece
+from pieceType import PieceType
 
-class PlayingPieceO(PlayingPiece):
+class PlayingPieceO(PieceType):
     def __init__(self):
-        super().__init__(PlayingPieceType.O.name)
+        super().__init__('O')
         
