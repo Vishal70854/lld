@@ -1,0 +1,242 @@
+# Define the classes and their attributes
+
+class ParkingLot:
+  def __init__(self, name, address):
+    self.name = name
+    self.address = address
+    self.parkingFloors = [] # a list of ParkingFloor objects
+    self.entryGates = [] # a list of ParkingGate objects
+    self.exitGates = [] # a list of ParkingGate objects
+
+  def addParkingFloor(self, floor):
+    # add a ParkingFloor object to the parkingFloors list
+    self.parkingFloors.append(floor)
+
+  def addEntryGate(self, gate):
+    # add a ParkingGate object to the entryGates list
+    self.entryGates.append(gate)
+
+  def addExitGate(self, gate):
+    # add a ParkingGate object to the exitGates list
+    self.exitGates.append(gate)
+
+  def getAvailableSpots(self, vehicleType):
+    # return a list of ParkingSpot objects that are free and match the vehicleType
+    availableSpots = []
+    for floor in self.parkingFloors:
+      availableSpots.extend(floor.getAvailableSpots(vehicleType))
+    return availableSpots
+
+  def issueTicket(self, vehicle, entryGate):
+    # create a new ParkingTicket object and assign it to a free spot
+    # return the ticket or None if no spot is available
+    availableSpots = self.getAvailableSpots(vehicle.vehicleType)
+    if availableSpots:
+      spot = availableSpots[0] # choose the first available spot for simplicity
+      ticket = ParkingTicket(spot, vehicle, entryGate)
+      spot.occupy(ticket) # mark the spot as occupied and link it to the ticket
+      return ticket
+    else:
+      return None
+
+  def processPayment(self, ticket, paymentType, exitGate):
+    # create a new Payment object and link it to the ticket
+    # calculate the amount based on the entry and exit time and the spot type
+    # update the payment status and return the payment or None if payment failed
+    payment = Payment(ticket, paymentType)
+    invoice = ticket.invoice # get the invoice from the ticket
+    invoice.exitTime = datetime.now() # set the exit time to current time
+    invoice.amount = invoice.calculateAmount() # calculate the amount based on some logic
+    payment.amount = invoice.amount # set the payment amount to the invoice amount
+    payment.status = payment.process() # process the payment based on some logic
+    if payment.status == "Done":
+      ticket.invoice.paymentStatus = "Paid" # update the invoice payment status
+      ticket.spot.free() # mark the spot as free and unlink it from the ticket
+      exitGate.open() # open the exit gate for the vehicle to leave
+      return payment
+    else:
+      return None
+
+class ParkingFloor:
+  def __init__(self, floorNumber):
+    self.floorNumber = floorNumber
+    self.parkingSpots = [] # a list of ParkingSpot objects
+
+  def addParkingSpot(self, spot):
+    # add a ParkingSpot object to the parkingSpots list
+    self.parkingSpots.append(spot)
+
+  def getAvailableSpots(self, vehicleType):
+    # return a list of ParkingSpot objects that are free and match the vehicleType
+    availableSpots = []
+    for spot in self.parkingSpots:
+      if spot.isFree() and spot.canFit(vehicleType):
+        availableSpots.append(spot)
+    return availableSpots
+
+class ParkingSpot:
+  def __init__(self, spotNumber, spotType):
+    self.spotNumber = spotNumber
+    self.spotType = spotType # one of "Large", "Medium", "Small"
+    self.status = "Free" # one of "Occupied", "Free", "Out of order"
+    self.ticket = None # a ParkingTicket object or None
+
+  def isFree(self):
+    # return True if the status is "Free", False otherwise
+    return self.status == "Free"
+
+  def canFit(self, vehicleType):
+    # return True if the vehicleType can fit in the spotType, False otherwise
+    # assume that a larger spot can fit a smaller vehicle, but not vice versa
+    if self.spotType == "Large":
+      return True # any vehicle can fit in a large spot
+    elif self.spotType == "Medium":
+      return vehicleType in ["Car", "Bike", "Scooter"] # only these vehicles can fit in a medium spot
+    elif self.spotType == "Small":
+      return vehicleType in ["Bike", "Scooter"] # only these vehicles can fit in a small spot
+
+  def occupy(self, ticket):
+    # mark the spot as occupied and link it to the ticket
+    self.status = "Occupied"
+    self.ticket = ticket
+
+  def free(self):
+    # mark the spot as free and unlink it from the ticket
+    self.status = "Free"
+    self.ticket = None
+
+class ParkingTicket:
+  def __init__(self, spot, vehicle, entryGate):
+    self.ticketID = uuid.uuid4() # generate a unique ID for the ticket
+    self.spot = spot # a ParkingSpot object
+    self.vehicle = vehicle # a Vehicle object
+    self.entryTime = datetime.now() # set the entry time to current time
+    self.entryGate = entryGate # a ParkingGate object
+    self.entryOperator = entryGate.currentAttendant # a ParkingAttendant object
+    self.invoice = Invoice(self) # create a new Invoice object and link it to the ticket
+
+class Invoice:
+  def __init__(self, ticket):
+    self.invoiceID = uuid.uuid4() # generate a unique ID for the invoice
+    self.exitTime = None # set the exit time to None initially
+    self.ticket = ticket # a ParkingTicket object
+    self.amount = 0 # set the amount to zero initially
+    self.payment = None # a Payment object or None
+    self.paymentStatus = "Unpaid" # one of "Paid", "Unpaid"
+
+  def calculateAmount(self):
+    # calculate the amount based on some logic using the ticket, spot and exit time
+    # for simplicity, assume that the rate is $10 per hour for large spots, $5 per hour for medium spots and $2 per hour for small spots
+    duration = (self.exitTime - self.ticket.entryTime).total_seconds() / 3600 # get the duration in hours
+    if self.ticket.spot.spotType == "Large":
+      rate = 10
+    elif self.ticket.spot.spotType == "Medium":
+      rate = 5
+    elif self.ticket.spot.spotType == "Small":
+      rate = 2
+    amount = duration * rate # calculate the amount by multiplying the duration and the rate
+    return amount
+
+class Payment:
+  def __init__(self, ticket, paymentType):
+    self.amount = 0 # set the amount to zero initially
+    self.ticket = ticket # a ParkingTicket object
+    self.type = paymentType # one of "Cash", "Credit Card", "UPI"
+    self.status = "Pending" # one of "Done", "Pending"
+    self.time = None # set the time to None initially
+
+  def process(self):
+    # process the payment based on some logic using the type and amount
+    # for simplicity, assume that cash and UPI payments are always successful, but credit card payments have a 10% chance of failure
+    if self.type == "Cash" or self.type == "UPI":
+      status = "Done" # cash and UPI payments are always successful
+      time = datetime.now() # set the time to current time
+      return status
+    elif self.type == "Credit Card":
+      status = random.choice(["Done", "Pending"]) # credit card payments have a 10% chance of failure
+      if status == "Done":
+        time = datetime.now() # set the time to current time if payment is successful
+      else:
+        time = None # leave the time as None if payment is pending
+      return status
+
+class Vehicle:
+  def __init__(self, licensePlate, vehicleType):
+    self.licensePlate = licensePlate # a string representing the license plate number
+    self.vehicleType = vehicleType # one of "Car", "Truck", "Bus", "Bike", "Scooter"
+
+class ParkingGate:
+  def __init__(self, gateNumber):
+    self.gateNumber = gateNumber # an integer representing the gate number
+    self.currentAttendant = None # a ParkingAttendant object or None
+
+  def assignAttendant(self, attendant):
+    # assign a ParkingAttendant object to the currentAttendant attribute
+    self.currentAttendant = attendant
+
+  def open(self):
+    # open the gate for the vehicle to enter or exit
+    print(f"Gate {self.gateNumber} is open.")
+
+class ParkingAttendant:
+  def __init__(self, name, email):
+    self.name = name # a string representing the name of the attendant
+    self.email = email # a string representing the email of the attendant
+
+# Create an example parking lot with some floors, spots, gates and attendants
+
+parkingLot1 = ParkingLot("Parking Lot 1", "123 Main Street")
+
+floor1 = ParkingFloor(1)
+floor2 = ParkingFloor(2)
+
+spot1_1 = ParkingSpot(1, "Large")
+spot1_2 = ParkingSpot(2, "Medium")
+spot1_3 = ParkingSpot(3, "Small")
+spot2_1 = ParkingSpot(4, "Medium")
+spot2_2 = ParkingSpot(5, "Medium")
+spot2_3 = ParkingSpot(6, "Small")
+
+floor1.addParkingSpot(spot1_1)
+floor1.addParkingSpot(spot1_2)
+floor1.addParkingSpot(spot1_3)
+floor2.addParkingSpot(spot2_1)
+floor2.addParkingSpot(spot2_2)
+floor2.addParkingSpot(spot2_3)
+
+parkingLot1.addParkingFloor(floor1)
+parkingLot1.addParkingFloor(floor2)
+
+gate1 = ParkingGate(1)
+gate2 = ParkingGate(2)
+gate3 = ParkingGate(3)
+gate4 = ParkingGate(4)
+
+parkingLot1.addEntryGate(gate1)
+parkingLot1.addEntryGate(gate2)
+parkingLot1.addExitGate(gate3)
+parkingLot1.addExitGate(gate4)
+
+attendant1 = ParkingAttendant("Alice", "alice@example.com")
+attendant2 = ParkingAttendant("Bob", "bob@example.com")
+attendant3 = ParkingAttendant("Charlie", "charlie@example.com")
+attendant4 = ParkingAttendant("David", "david@example.com")
+
+gate1.assignAttendant(attendant1)
+gate2.assignAttendant(attendant2)
+gate3.assignAttendant(attendant3)
+gate4.assignAttendant(attendant4)
+
+# Create some example vehicles and test the parking lot functionality
+
+vehicle1 = Vehicle("ABC 123", "Car")
+vehicle2 = Vehicle("XYZ 456", "Bike")
+vehicle3 = Vehicle("PQR 789", "Truck")
+
+ticket1 = parkingLot1.issueTicket(vehicle1, gate1) # issue a ticket for vehicle 1 at gate 1
+ticket2 = parkingLot1.issueTicket(vehicle2, gate2) # issue a ticket for vehicle 2 at gate 2
+ticket3 = parkingLot1.issueTicket(vehicle3, gate1) # issue a ticket for vehicle 3 at gate 1
+
+payment1 = parkingLot1.processPayment(ticket1, "Cash", gate3) # process the payment for ticket 1 using cash at gate 3
+payment2 = parkingLot1.processPayment(ticket2, "Credit Card", gate4) # process the payment for ticket 2 using credit card at gate 4
+payment3 = parkingLot1.processPayment(ticket3, "UPI", gate3) # process the payment for ticket 3 using UPI at gate 3
