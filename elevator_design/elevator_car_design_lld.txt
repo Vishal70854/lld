@@ -1,0 +1,224 @@
+# Define the classes and their attributes
+
+class ElevatorCar:
+  def __init__(self, carNumber):
+    self.carNumber = carNumber # an integer representing the car number
+    self.currentFloor = 1 # an integer representing the current floor
+    self.direction = None # one of "Up", "Down", None
+    self.status = "Idle" # one of "Idle", "Moving", "Stopped"
+    self.internalButtons = [] # a list of InternalButton objects
+    self.passengers = [] # a list of Passenger objects
+
+  def addInternalButton(self, button):
+    # add an InternalButton object to the internalButtons list
+    self.internalButtons.append(button)
+
+  def addPassenger(self, passenger):
+    # add a Passenger object to the passengers list
+    self.passengers.append(passenger)
+
+  def removePassenger(self, passenger):
+    # remove a Passenger object from the passengers list
+    self.passengers.remove(passenger)
+
+  def move(self):
+    # move the elevator car to the next floor based on the direction
+    if self.direction == "Up":
+      self.currentFloor += 1 # increment the current floor by one
+    elif self.direction == "Down":
+      self.currentFloor -= 1 # decrement the current floor by one
+
+  def stop(self):
+    # stop the elevator car at the current floor and open the doors
+    self.status = "Stopped"
+    print(f"Elevator car {self.carNumber} stopped at floor {self.currentFloor}. Doors are open.")
+
+  def resume(self):
+    # resume the elevator car movement and close the doors
+    self.status = "Moving"
+    print(f"Elevator car {self.carNumber} resumed moving. Doors are closed.")
+
+class ElevatorController:
+  def __init__(self, building):
+    self.building = building # a Building object
+    self.elevatorCars = [] # a list of ElevatorCar objects
+    self.requests = [] # a list of tuples (floorNumber, direction)
+
+  def addElevatorCar(self, car):
+    # add an ElevatorCar object to the elevatorCars list
+    self.elevatorCars.append(car)
+
+  def addRequest(self, floorNumber, direction):
+    # add a tuple (floorNumber, direction) to the requests list
+    self.requests.append((floorNumber, direction))
+
+  def processRequests(self):
+    # process the requests in the order they were added
+    for request in self.requests:
+      floorNumber, direction = request # unpack the tuple into floor number and direction
+      car = self.selectCar(floorNumber, direction) # select an elevator car based on some logic
+      if car:
+        car.direction = direction # set the car direction to match the request direction
+        car.status = "Moving" # set the car status to moving
+        while car.currentFloor != floorNumber: # loop until the car reaches the requested floor
+          car.move() # move the car to the next floor
+        car.stop() # stop the car at the requested floor and open the doors
+        self.handlePassengers(car) # handle the passengers entering and exiting the car
+        if not car.passengers: # if there are no passengers in the car
+          car.direction = None # set the car direction to None
+          car.status = "Idle" # set the car status to idle
+
+  def selectCar(self, floorNumber, direction):
+    # select an elevator car based on some logic using the floor number and direction
+    # for simplicity, assume that we choose the closest idle or moving car in the same direction as the request
+    closestCar = None # initialize a variable to store the closest car or None
+    minDistance = float("inf") # initialize a variable to store the minimum distance or infinity
+    for car in self.elevatorCars: 
+      if (car.status == "Idle" or (car.status == "Moving" and car.direction == direction)): 
+        distance = abs(car.currentFloor - floorNumber) 
+        if distance < minDistance: 
+          closestCar = car 
+          minDistance = distance 
+    return closestCar 
+
+  def handlePassengers(self, car):
+    # handle the passengers entering and exiting the elevator car at the current floor
+    for passenger in car.passengers: 
+      if passenger.destination == car.currentFloor: 
+        passenger.exit(car) 
+        print(f"Passenger {passenger.name} exited elevator car {car.carNumber} at floor {car.currentFloor}.")
+        car.removePassenger(passenger) 
+      else: 
+        print(f"Passenger {passenger.name} is still in elevator car {car.carNumber}.")
+    
+    for passenger in self.building.floors[car.currentFloor - 1].passengers: 
+      if passenger.direction == car.direction: 
+        passenger.enter(car) 
+        print(f"Passenger {passenger.name} entered elevator car {car.carNumber} at floor {car.currentFloor}.")
+        car.addPassenger(passenger) 
+        self.building.floors[car.currentFloor - 1].removePassenger(passenger) 
+      else: 
+        print(f"Passenger {passenger.name} is still waiting at floor {car.currentFloor}.")
+    
+    car.resume() # resume the car movement and close the doors
+
+class Floor:
+  def __init__(self, floorNumber):
+    self.floorNumber = floorNumber # an integer representing the floor number
+    self.externalButtons = [] # a list of ExternalButton objects
+    self.passengers = [] # a list of Passenger objects
+
+  def addExternalButton(self, button):
+    # add an ExternalButton object to the externalButtons list
+    self.externalButtons.append(button)
+
+  def addPassenger(self, passenger):
+    # add a Passenger object to the passengers list
+    self.passengers.append(passenger)
+
+  def removePassenger(self, passenger):
+    # remove a Passenger object from the passengers list
+    self.passengers.remove(passenger)
+
+class InternalButton:
+  def __init__(self, floorNumber, car):
+    self.floorNumber = floorNumber # an integer representing the floor number
+    self.car = car # an ElevatorCar object
+    self.status = "Off" # one of "On", "Off"
+
+  def press(self):
+    # press the button and add a request to the elevator controller
+    self.status = "On" # set the status to On
+    print(f"Internal button for floor {self.floorNumber} in elevator car {self.car.carNumber} is pressed.")
+    controller = self.car.controller # get the elevator controller from the car
+    controller.addRequest(self.floorNumber, self.car.direction) # add a request to the controller
+
+class ExternalButton:
+  def __init__(self, floorNumber, direction):
+    self.floorNumber = floorNumber # an integer representing the floor number
+    self.direction = direction # one of "Up", "Down"
+    self.status = "Off" # one of "On", "Off"
+
+  def press(self):
+    # press the button and add a request to the elevator controller
+    self.status = "On" # set the status to On
+    print(f"External button for floor {self.floorNumber} and direction {self.direction} is pressed.")
+    controller = self.floor.controller.building.controller # get the elevator controller from the floor and building
+    controller.addRequest(self.floorNumber, self.direction) # add a request to the controller
+
+class Building:
+  def __init__(self, name, address, numberOfFloors):
+    self.name = name # a string representing the name of the building
+    self.address = address # a string representing the address of the building
+    self.numberOfFloors = numberOfFloors # an integer representing the number of floors in the building
+    self.floors = [] # a list of Floor objects
+    self.controller = ElevatorController(self) # create a new ElevatorController object and link it to the building
+
+  def addFloor(self, floor):
+    # add a Floor object to the floors list
+    self.floors.append(floor)
+
+class Passenger:
+  def __init__(self, name, origin, destination):
+    self.name = name # a string representing the name of the passenger
+    self.origin = origin # an integer representing the origin floor number
+    self.destination = destination # an integer representing the destination floor number
+    if destination > origin: 
+      self.direction = "Up" 
+    elif destination < origin: 
+      self.direction = "Down" 
+    else: 
+      self.direction = None 
+
+  def enter(self, car):
+    # enter an ElevatorCar object and press an internal button for the destination floor
+    button = car.internalButtons[self.destination - 1] # get the internal button for the destination floor from the car
+    button.press() # press the button
+
+  def exit(self, car):
+    # exit an ElevatorCar object at the destination floor
+	pass # do nothing
+
+# Create an example building with some floors, external buttons, elevator cars and internal buttons
+
+building1 = Building("Building 1", "456 Main Street", 10)
+
+for i in range(1, 11): # loop from 1 to 10
+  floor = Floor(i) # create a new Floor object with the floor number
+  upButton = ExternalButton(i, "Up") # create a new ExternalButton object with the floor number and direction "Up"
+  downButton = ExternalButton(i, "Down") # create a new ExternalButton object with the floor number and direction "Down"
+  floor.addExternalButton(upButton) # add the up button to the floor
+  floor.addExternalButton(downButton) # add the down button to the floor
+  building1.addFloor(floor) # add the floor to the building
+
+car1 = ElevatorCar(1) # create a new ElevatorCar object with the car number 1
+car2 = ElevatorCar(2) # create a new ElevatorCar object with the car number 2
+
+for i in range(1, 11): # loop from 1 to 10
+  button1 = InternalButton(i, car1) # create a new InternalButton object with the floor number and car 1
+  button2 = InternalButton(i, car2) # create a new InternalButton object with the floor number and car 2
+  car1.addInternalButton(button1) # add the button to car 1
+  car2.addInternalButton(button2) # add the button to car 2
+
+building1.controller.addElevatorCar(car1) # add car 1 to the elevator controller
+building1.controller.addElevatorCar(car2) # add car 2 to the elevator controller
+
+# Create some example passengers and test the elevator system functionality
+
+passenger1 = Passenger("Alice", 1, 5) # create a new Passenger object with name, origin and destination
+passenger2 = Passenger("Bob", 3, 7) # create a new Passenger object with name, origin and destination
+passenger3 = Passenger("Charlie", 10, 2) # create a new Passenger object with name, origin and destination
+
+building1.floors[0].addPassenger(passenger1) # add passenger 1 to floor 1
+building1.floors[2].addPassenger(passenger2) # add passenger 2 to floor 3
+building1.floors[9].addPassenger(passenger3) # add passenger 3 to floor 10
+
+upButton1 = building1.floors[0].externalButtons[0] # get the external button for floor 1 and direction "Up"
+upButton3 = building1.floors[2].externalButtons[0] # get the external button for floor 3 and direction "Up"
+downButton10 = building1.floors[9].externalButtons[1] # get the external button for floor 10 and direction "Down"
+
+upButton1.press() # press the up button at floor 1
+upButton3.press() # press the up button at floor 3
+downButton10.press() # press the down button at floor 10
+
+building1.controller.processRequests() # process the requests in the elevator controller
